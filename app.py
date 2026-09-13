@@ -242,7 +242,7 @@ with tab_dash:
         if len(user_txs) > 0:
             for _, tx in user_txs.iterrows():
                 color = "green" if tx['amount'] > 0 else "black"
-                st.markdown(f"**{tx['type'].capitalize()}** • {tx['event_date']} <span style='float:right; color:{color}; font-weight:bold;'>${tx['amount']:,.2f}</span>", unsafe_allow_html=True)
+                st.markdown(f"**{tx['event_type'].capitalize()}** • {tx['event_date']} <span style='float:right; color:{color}; font-weight:bold;'>${tx['amount']:,.2f}</span>", unsafe_allow_html=True)
                 st.markdown("<hr style='margin:10px 0px;'>", unsafe_allow_html=True)
         else:
             st.markdown("**No recent transactions.**")
