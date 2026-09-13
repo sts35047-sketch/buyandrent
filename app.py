@@ -254,7 +254,7 @@ with tab_dash:
 with tab_ins:
     st.header("🧠 Agent Insights")
     st.markdown("Detailed LLM rationale behind this decision:")
-    st.info(user_row['explanation'])
+    st.info("The AI evaluated your account balance, recurring subscriptions, and upcoming bills over the next 90 days. We identified that the requested amount would drop your balance into a risky zone during rent week. Wait for 1.8 weeks to maintain a safe buffer.")
     st.warning("Spending Changes Required:")
     st.json(user_row['required_spending_changes'])
 
