@@ -1,0 +1,7 @@
+__pycache__
+*.db
+code.zip
+Lib/
+Scripts/
+Include/
+pyvenv.cfg

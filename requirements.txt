@@ -1,0 +1,10 @@
+pandas
+numpy
+fastapi
+uvicorn
+pillow
+python-multipart
+openai
+google-generativeai
+python-dateutil
+pydantic
