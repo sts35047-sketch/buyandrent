@@ -53,12 +53,13 @@
     }
 
     function App() {
+      const data = window.HACKATHON_DATA || null;
       const [activeTab, setActiveTab] = useState("Dashboard");
       const [showSearch, setShowSearch] = useState(false);
       const [searchQuery, setSearchQuery] = useState("");
       const [isSearching, setIsSearching] = useState(false);
       const [searchResult, setSearchResult] = useState(null);
-      const [paymentPlan, setPaymentPlan] = useState("split");
+      const [paymentPlan, setPaymentPlan] = useState(data?.payment_method === 'full_payment' ? 'now' : 'split');
       const [timeframe, setTimeframe] = useState("90D");
       
       React.useEffect(() => {
@@ -124,7 +125,6 @@
         );
       };
       
-      const data = window.HACKATHON_DATA || null;
       const itemName = data ? data.item_name : "MacBook Pro 14\"";
       const itemPrice = data ? data.amount : 899;
       const aiDecision = data ? (data.affordability === "not_affordable" ? "We ran the numbers — you should wait." : "We ran the numbers — you can afford this.") : "We ran the numbers — you can wait a bit.";
@@ -290,10 +290,10 @@
                               <h2 className="font-mono text-[11px] tracking-[0.12em] text-[#0A0A0B]/40">90-DAY BALANCE • ORCHESTRATE FORECAST</h2>
                               <span className="text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#0A0A0B] text-white">INK</span>
                             </div>
-                            <div className="mt-4 flex items-baseline gap-4">
-                              <span className="font-fraunces text-[32px] font-semibold tracking-tight">$3,842</span>
-                              <span className="text-[12.5px] font-medium text-[#0A0A0B]/50">after rent + this purchase on {paymentPlan === "split" ? "split" : "pay now"}</span>
-                            </div>
+                              <div className="mt-4 flex flex-col gap-1">
+                                <span className="font-fraunces text-[24px] font-semibold tracking-tight text-[#5B5CFF]">Safe to Proceed</span>
+                                <span className="text-[12.5px] font-medium text-[#0A0A0B]/50">Balance remains above minimum threshold on {paymentPlan === "split" ? "installments" : "pay in full"}</span>
+                              </div>
                           </div>
                           <div className="hidden md:flex items-center gap-1.5 rounded-full bg-[#F6F5F2] border border-[#0A0A0B]/[0.06] p-1">
                             {["90D", "60D", "30D"].map(n => (
@@ -328,10 +328,10 @@
                             <circle cx={getX(16)} cy={getY(balanceData[16].balance)} r="4" fill="#5B5CFF" stroke="white" strokeWidth="2" />
                           </svg>
                         </div>
-                        <div className="mx-7 mt-2 mb-6 rounded-[14px] bg-[#F6F5F2] border border-[#0A0A0B]/[0.06] px-4 h-[44px] flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full bg-[#0A0A0B] text-white flex items-center justify-center text-[12px]">↗</span>
-                          <span className="text-[12.5px] font-medium text-[#0A0A0B]/70">Lowest point <span className="font-bold text-[#0A0A0B]">${minBal.toLocaleString()}</span> on rent week. Split plan avoids it completely.</span>
-                        </div>
+                          <div className="mx-7 mt-2 mb-6 rounded-[14px] bg-[#F6F5F2] border border-[#0A0A0B]/[0.06] px-4 h-[44px] flex items-center gap-3">
+                            <span className="w-6 h-6 rounded-full bg-[#0A0A0B] text-white flex items-center justify-center text-[12px]">ℹ</span>
+                            <span className="text-[12.5px] font-medium text-[#0A0A0B]/70">{paymentPlan === "split" ? "Installments preserve liquidity during heavy expense weeks." : "Paying in full avoids lingering debt."}</span>
+                          </div>
                       </div>
                     </div>
 
@@ -352,26 +352,25 @@
                         
                         <div className="mt-5 space-y-3">
                           <button onClick={() => setPaymentPlan("now")} className={`w-full text-left p-4 rounded-[16px] border ${paymentPlan === "now" ? "border-[#5B5CFF] shadow-[0_0_0_1px_#5B5CFF]" : "border-[#0A0A0B]/[0.08]"} transition-colors relative`}>
+                            {data?.payment_method === 'full_payment' && <div className="absolute -top-3 right-4 bg-[#5B5CFF] text-white text-[10px] font-bold px-2 py-1 rounded-full">RECOMMENDED</div>}
                             <div className="font-mono text-[11px] text-[#0A0A0B]/50 tracking-wider">PAY NOW</div>
                             <div className="mt-2 flex items-baseline gap-2">
-                              <span className="text-[22px] font-bold font-fraunces">$899</span>
-                              <span className="text-[13px] text-[#0A0A0B]/50">one-time today</span>
+                              <span className="text-[20px] font-bold">${itemPrice.toLocaleString()}</span>
                             </div>
-                            <div className="mt-1 text-[12px] text-[#0A0A0B]/50">Balance dips to $3,183</div>
+                            <div className="mt-1 text-[12px] text-[#0A0A0B]/50">Pay in full today</div>
                             {paymentPlan === "now" && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#0A0A0B] text-white flex items-center justify-center">✓</div>}
                           </button>
 
                           <button onClick={() => setPaymentPlan("split")} className={`w-full text-left p-4 rounded-[16px] border ${paymentPlan === "split" ? "border-[#5B5CFF] shadow-[0_0_0_1px_#5B5CFF]" : "border-[#0A0A0B]/[0.08]"} transition-colors relative`}>
-                            <div className="absolute -top-3 right-4 bg-[#5B5CFF] text-white text-[10px] font-bold px-2 py-1 rounded-full">RECOMMENDED</div>
+                            {data?.payment_method !== 'full_payment' && <div className="absolute -top-3 right-4 bg-[#5B5CFF] text-white text-[10px] font-bold px-2 py-1 rounded-full">RECOMMENDED</div>}
                             <div className="flex items-center gap-2">
-                              <div className="font-mono text-[11px] text-[#0A0A0B]/50 tracking-wider">SPLIT INTO 3</div>
-                              <span className="text-[10px] bg-[#5B5CFF]/10 text-[#5B5CFF] px-1.5 py-0.5 rounded font-bold">0% APR</span>
+                              <div className="font-mono text-[11px] text-[#0A0A0B]/50 tracking-wider">INSTALLMENTS</div>
                             </div>
                             <div className="mt-2 flex items-baseline gap-2">
-                              <span className="text-[22px] font-bold font-fraunces">$306</span>
-                              <span className="text-[13px] text-[#0A0A0B]/50">/mo</span>
+                              <span className="text-[20px] font-bold">${Math.round(itemPrice / 3).toLocaleString()}</span>
+                              <span className="text-[13px] text-[#0A0A0B]/50">/mo x 3</span>
                             </div>
-                            <div className="mt-1 text-[12px] text-[#5B5CFF] font-medium">Keeps buffer above $3.2k</div>
+                            <div className="mt-1 text-[12px] text-[#5B5CFF] font-medium">Spreads cost over time</div>
                             {paymentPlan === "split" && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#0A0A0B] text-white flex items-center justify-center">✓</div>}
                           </button>
                         </div>
