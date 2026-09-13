@@ -70,22 +70,32 @@ def build_daily_flows(events_df: pd.DataFrame, start_date: str, days=180) -> dic
         
     start_dt = datetime.strptime(start_date, '%Y-%m-%d')
     
-    # Simple recurring extrapolation
-    recurring = events_df[events_df['is_recurring'] == True]
-    for _, row in recurring.iterrows():
+    # Filter to only recurring events
+    recurring = events_df[events_df['is_recurring'] == True].copy()
+    if recurring.empty:
+        return flows
+        
+    recurring['event_date_dt'] = pd.to_datetime(recurring['event_date'])
+    # Get only the latest event for each category/description to avoid exponential duplication
+    latest_recurring = recurring.sort_values('event_date_dt').groupby(['category', 'description']).last().reset_index()
+    
+    for _, row in latest_recurring.iterrows():
         amount = float(row['amount']) if not pd.isna(row['amount']) else 0.0
-        if row.get('type') not in ['salary', 'income', 'deposit', 'refund']:
-            amount = -abs(amount)
-        else:
+        
+        direction = row.get('direction', 'outbound')
+        category = row.get('category', '').lower()
+        if direction == 'inbound' or category in ['income', 'salary', 'deposit', 'refund']:
             amount = abs(amount)
+        else:
+            amount = -abs(amount)
             
-        event_dt = pd.to_datetime(row['event_date'])
+        event_dt = row['event_date_dt']
         if pd.isna(event_dt): continue
         
-        # Extrapolate every 30 days
-        for i in range(1, 6):
+        # Extrapolate every 30 days from the latest occurrence
+        for i in range(1, 7):
             next_dt = event_dt + timedelta(days=30*i)
-            if next_dt >= start_dt:
+            if next_dt >= start_dt and next_dt <= start_dt + timedelta(days=days):
                 date_str = next_dt.strftime('%Y-%m-%d')
                 flows[date_str] = flows.get(date_str, 0.0) + amount
                 

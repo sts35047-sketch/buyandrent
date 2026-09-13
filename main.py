@@ -42,9 +42,16 @@ def main():
     else:
         events_df['is_flexible'] = False
         
-    # Figure out recurring by grouping
-    counts = events_df.groupby(['user_id', 'description'])['event_id'].transform('count')
-    events_df['is_recurring'] = counts > 1
+    # Group by category for incomes, description for expenses to identify recurring
+    def determine_recurring(row, df):
+        if row.get('category') in ['salary', 'rent', 'utilities', 'insurance', 'streaming', 'cloud_storage', 'music_subscription']:
+            return True
+        
+        # Fallback to description count
+        desc_count = len(df[df['description'] == row['description']])
+        return desc_count > 1
+
+    events_df['is_recurring'] = events_df.apply(lambda r: determine_recurring(r, events_df[events_df['user_id'] == r['user_id']]), axis=1)
     
     exchange_rates_path = 'dataset/exchange_rates.csv'
     rates = load_exchange_rates(exchange_rates_path)

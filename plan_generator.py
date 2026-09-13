@@ -33,7 +33,7 @@ def rank_payment_options(options, start_balance, start_date, daily_flows, min_ba
     
     allowed_methods = []
     if 'payment_methods_user_will_consider' in profile and not pd.isna(profile['payment_methods_user_will_consider']):
-        allowed_methods = [x.strip() for x in str(profile['payment_methods_user_will_consider']).split(',')]
+        allowed_methods = [x.strip() for x in str(profile['payment_methods_user_will_consider']).split('|')]
 
     desired_date = req_metadata['desired_completion_date']
     allows_partial = str(req_metadata.get('allows_partial_payment', 'false')).lower() == 'true'
